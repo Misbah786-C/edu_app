@@ -4,19 +4,6 @@
 
 A complete multi-screen Flutter application featuring user authentication, form validation, navigation, and clean architecture. Built for the Mobile App Development assignment.
 
----
-
-## Student Information
-
-| Field | Value |
-|-------|-------|
-| **Student Name** | *(Add your name)* |
-| **Student ID** | *(Add your ID)* |
-| **Course** | Mobile App Development |
-| **Branch** | `main` / `feature/course-api-integration` |
-
----
-
 ## Features
 
 ### Screens
