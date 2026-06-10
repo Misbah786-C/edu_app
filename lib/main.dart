@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_theme.dart';
 import 'controllers/auth_controller.dart';
+import 'providers/course_provider.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -14,8 +15,11 @@ class EduApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthController(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => CourseProvider()),
+      ],
       child: MaterialApp(
         title: 'EduApp',
         debugShowCheckedModeBanner: false,
