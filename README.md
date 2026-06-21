@@ -16,18 +16,18 @@ A complete multi-screen Flutter application featuring user authentication, form 
 | **Detail** | Full subject details — description, schedule, room |
 
 ### Key Requirements Met
-- ✅ Real-time form validation (all fields)
-- ✅ Password strength indicator
-- ✅ Confirm password match check
-- ✅ Submit button disabled until form is valid
-- ✅ Show/hide password toggle (eye icon)
-- ✅ Remember Me — persists session via `SharedPreferences`
-- ✅ Gender dropdown using `Gender` enum
-- ✅ `AuthState` enum for state management
-- ✅ Reusable `AppValidator` class (fully decoupled from UI)
-- ✅ `AuthController` separates all business logic from UI
-- ✅ Navigation with data passing between screens
-- ✅ Logout clears session and returns to Login
+- Real-time form validation (all fields)
+- Password strength indicator
+- Confirm password match check
+- Submit button disabled until form is valid
+- Show/hide password toggle (eye icon)
+- Remember Me — persists session via `SharedPreferences`
+- Gender dropdown using `Gender` enum
+- `AuthState` enum for state management
+- Reusable `AppValidator` class (fully decoupled from UI)
+- `AuthController` separates all business logic from UI
+- Navigation with data passing between screens
+- Logout clears session and returns to Login
 
 ---
 
@@ -43,9 +43,9 @@ lib/
 │   ├── user_model.dart              # UserModel with toMap/fromMap
 │   └── subject_model.dart          # Subject model + static catalogue
 ├── validators/
-│   └── app_validator.dart          # ✅ Reusable validator class (no UI)
+│   └── app_validator.dart          # Reusable validator class (no UI)
 ├── controllers/
-│   └── auth_controller.dart        # ✅ All auth logic (no UI code)
+│   └── auth_controller.dart        # All auth logic (no UI code)
 ├── widgets/
 │   └── app_widgets.dart            # Shared reusable widgets
 └── screens/
