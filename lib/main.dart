@@ -23,4 +23,17 @@ class EduApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthController()),
         // The provider receives a repository, which wires together the API
-  
+        // service, local Hive cache and connectivity checks.
+        ChangeNotifierProvider(
+          create: (_) => CourseProvider(repository: CourseRepository()),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'EduApp',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        home: const SplashScreen(),
+      ),
+    );
+  }
+}

@@ -310,4 +310,180 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(title,
               style: const TextStyle(
-           
+                  fontSize: 18, color: AppColors.textSecondary)),
+          const SizedBox(height: 8),
+          Text(subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Reusable error state ──────────────────────────────────────────────────────
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorState({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.wifi_off_rounded, size: 64, color: AppColors.error),
+            const SizedBox(height: 16),
+            const Text('Something went wrong',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary)),
+            const SizedBox(height: 8),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Course card ───────────────────────────────────────────────────────────────
+class _CourseCard extends StatelessWidget {
+  final Course course;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _CourseCard({
+    required this.course,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  Color get _accent {
+    const palette = [
+      Color(0xFF6C63FF),
+      Color(0xFF43AA8B),
+      Color(0xFFFF6B6B),
+      Color(0xFFFFBE0B),
+      Color(0xFF0F3460),
+    ];
+    return palette[course.id % palette.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      elevation: 1,
+      shadowColor: Colors.black12,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // ID badge
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: _accent.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '#${course.id}',
+                  style: TextStyle(
+                      color: _accent,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12),
+                ),
+              ),
+              const SizedBox(width: 14),
+              // Title + body
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: AppColors.primary),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      course.body,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Actions
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ActionIcon(
+                      icon: Icons.edit_outlined,
+                      color: AppColors.purple,
+                      onTap: onEdit),
+                  const SizedBox(height: 4),
+                  _ActionIcon(
+                      icon: Icons.delete_outline,
+                      color: AppColors.error,
+                      onTap: onDelete),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  const _ActionIcon(
+      {required this.icon, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 16, color: color),
+      ),
+    );
+  }
+}

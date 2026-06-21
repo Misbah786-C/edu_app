@@ -156,4 +156,126 @@ lib/
 
 ---
 
-## 
+## Architecture Layers (Repository Pattern)
+
+The app follows a strict separation of concerns:
+
+```
+UI (screens/widgets)
+        │   reads state, dispatches actions
+        ▼
+State Management  →  CourseProvider (ChangeNotifier)
+        │   no HTTP, no storage — only UI state
+        ▼
+Repository        →  CourseRepository
+        │   decides: API when online, cache when offline; keeps cache in sync
+        ├─────────────► API Service     (CourseService)        — HTTP only
+        └─────────────► Local Database   (CourseLocalStorage)   — Hive only
+                          ▲
+                          └── ConnectivityService — "are we online?"
+```
+
+| Layer | File | Responsibility |
+|-------|------|----------------|
+| API service | `services/course_service.dart` | Only performs HTTP requests; throws `ApiException` |
+| Local storage | `services/course_local_storage.dart` | Only reads/writes the Hive cache + last-sync time |
+| Connectivity | `services/connectivity_service.dart` | Reports online/offline |
+| Repository | `repositories/course_repository.dart` | Chooses API vs cache, refreshes the cache |
+| State | `providers/course_provider.dart` | Loading/success/error/empty + optimistic updates + search |
+
+---
+
+## State Management
+
+State is managed with **Provider** (`CourseProvider`, a `ChangeNotifier`). `setState`
+is not used for course data — the UI only listens to the provider. All four states are
+handled explicitly via the `CourseStatus` enum:
+
+| State | Description |
+|-------|-------------|
+| `loading` | Spinner shown only on the *first* load (cached data is shown instantly on later loads) |
+| `success` | Renders the list (or the offline banner over the list) |
+| `error` | Full-screen error + Retry, shown only when there is no cached data to fall back on |
+| empty | Distinguishes "no courses yet" from "no search results" |
+
+The provider also exposes `isFromCache`, `lastSync`, and the search `query`, keeping all
+UI logic out of the widgets.
+
+---
+
+## Offline Support
+
+Course data is cached locally with **Hive** after every successful API response. The list
+is serialised to a single JSON string (no `TypeAdapter`/code-gen needed) and stored with a
+`last_sync` timestamp.
+
+On load, `CourseRepository.getCourses()`:
+
+1. Checks connectivity via `ConnectivityService`.
+2. **Online** → fetches from the API and refreshes the Hive cache.
+3. **Offline** (or a failed request) → returns the cached copy and flags it `fromCache`.
+
+When serving cached data, the Course List shows an **offline banner** with the last sync
+time. Once connectivity returns, a refresh re-fetches from the API and the cache is
+re-synchronised. Every create/update/delete also writes the updated list back to the cache,
+so the offline copy always stays correct.
+
+---
+
+## Optimistic UI Updates
+
+Create, update, and delete update the UI **immediately**, before the network responds:
+
+- **Delete** — the row disappears at once; if the API call fails it is **restored to its
+  original position** and an error snackbar is shown.
+- **Update** — the edited values render instantly; on failure the previous values are
+  **rolled back**.
+- **Create** — a placeholder card appears immediately and is swapped for the server's
+  response (or **removed** if the request fails).
+
+This keeps the UI responsive and is implemented entirely in `CourseProvider` so the widgets
+stay simple.
+
+---
+
+## UX Improvements
+
+- **Pull-to-refresh** on the course list (`RefreshIndicator`).
+- **Search/filter** courses by title or description in real time.
+- **Offline banner** showing cached state + last sync time.
+- Proper **empty states** ("no courses yet" vs "no search results").
+- Loading spinner only blocks the screen on first load, not on background refreshes.
+
+---
+
+## Screenshots
+
+> Add screenshots/GIFs here after running the app (`flutter run`):
+
+| Course List (online) | Offline banner (cached) | Search / filter |
+|----------------------|-------------------------|-----------------|
+| _screenshot_ | _screenshot_ | _screenshot_ |
+
+| Add / Edit course | Optimistic delete | Empty state |
+|-------------------|-------------------|-------------|
+| _screenshot_ | _screenshot_ | _screenshot_ |
+
+Place image files under `assets/images/` (or `docs/`) and reference them like:
+`![Course List](docs/course_list.png)`
+
+---
+
+## CRUD Flow
+
+1. **Read** — App opens Course List → GET /posts → displays 20 courses
+2. **Create** — Tap Add Course → fill form → POST /posts → inserted at top of list
+3. **Update** — Tap edit icon → pre-filled form → PUT /posts/:id → list updated
+4. **Delete** — Tap delete icon → confirmation dialog → DELETE /posts/:id → removed from list
+
+---
+
+## Notes
+
+- JSONPlaceholder is a fake API — data is not actually persisted on the server but all responses (201, 200) are returned correctly and the UI reflects all changes locally.
+- The app uses an in-memory user store — registered users exist only for the lifetime of the app session.
+- Passwords are never stored to disk. Only name, email, and gender are saved via SharedPreferences when Remember Me is checked.
